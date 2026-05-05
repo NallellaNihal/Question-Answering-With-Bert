@@ -1,72 +1,158 @@
-import tensorflow as tf
-import tensorflow_hub as hub
-import tensorflow_text
-import numpy as np
+# 🤖 BERT Question Answering System
 
-QA_MODEL_URL = "https://tfhub.dev/see--/bert-uncased-tf2-qa/1"
-PREPROCESSOR_URL = "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3"
+An end-to-end **Extractive Question Answering system** built using a pretrained BERT model from TensorFlow Hub.
+This project demonstrates how deep learning models can extract precise answers from unstructured text.
 
-print("Loading BERT QA model...")
-qa_model = hub.load(QA_MODEL_URL)
+---
 
-print("Loading BERT preprocessor...")
-preprocessor = hub.load(PREPROCESSOR_URL)
+## 🚀 Overview
 
-context = """
-TensorFlow is an end-to-end open-source platform for machine learning. It has a comprehensive,
-flexible ecosystem of tools, libraries and community resources that lets researchers innovate
-with machine learning and productionize AI easily.
-"""
+This system takes:
 
-question = "What is TensorFlow used for?"
+* 📄 A **context paragraph**
+* ❓ A **natural language question**
 
+and returns:
 
-def preprocess_qa(question, context, seq_length=256):
-    inputs = preprocessor.bert_pack_inputs(
-        [tf.constant([question])],
-        [tf.constant([context])],
-        seq_length=seq_length
-    )
-    return inputs
+* ✅ The **most relevant answer span** from the context using BERT
 
+---
 
-def get_answer(question, context):
-    inputs = preprocess_qa(question, context)
+## 🧠 Key Features
 
-    outputs = qa_model(inputs)
+* 🔍 Extractive QA using **BERT (Bidirectional Encoder Representations from Transformers)**
+* ⚡ TensorFlow + TensorFlow Hub integration
+* 🧩 Tokenization & input preprocessing with BERT pipeline
+* 📊 Custom span selection logic for accurate answer extraction
+* 🧼 Clean and modular Python implementation
 
-    start_logits = outputs["start_logits"][0].numpy()
-    end_logits = outputs["end_logits"][0].numpy()
+---
 
-    input_word_ids = inputs["input_word_ids"][0].numpy()
+## 🛠 Tech Stack
 
-    start_index = int(np.argmax(start_logits))
-    end_index = int(np.argmax(end_logits))
+* **Python**
+* **TensorFlow**
+* **TensorFlow Hub**
+* **TensorFlow Text**
+* **NumPy**
+* **BERT (NLP Model)**
 
-    if end_index < start_index:
-        return "No clear answer found."
+---
 
-    vocab = preprocessor.tokenize.get_vocabulary()
+## 📂 Project Structure
 
-    tokens = []
-    for token_id in input_word_ids[start_index:end_index + 1]:
-        if token_id == 0:
-            continue
+```bash
+bert-qa/
+│── main.py            # Core QA pipeline
+│── vocab.txt          # BERT vocabulary file
+│── requirements.txt   # Dependencies
+│── README.md          # Documentation
+```
 
-        token = vocab[token_id]
+---
 
-        if token in ["[CLS]", "[SEP]", "[PAD]"]:
-            continue
+## ⚙️ Installation
 
-        tokens.append(token)
+### 1. Clone the repository
 
-    answer = " ".join(tokens)
-    answer = answer.replace(" ##", "")
+```bash
+git clone https://github.com/NallellaNihal/Question-Answering-With-Bert.git
+cd Question-Answering-With-Bert
+```
 
-    return answer.strip()
+### 2. Create virtual environment
 
+```bash
+python3.11 -m venv bert-env
+source bert-env/bin/activate
+```
 
-answer = get_answer(question, context)
+### 3. Install dependencies
 
-print("\nQuestion:", question)
-print("Answer:", answer)
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## ▶️ Usage
+
+Run the application:
+
+```bash
+python main.py
+```
+
+---
+
+## 📌 Example
+
+**Context:**
+
+> TensorFlow is an end-to-end open-source platform for machine learning...
+
+**Question:**
+
+> What is TensorFlow used for?
+
+**Output:**
+
+```bash
+Answer: machine learning
+```
+
+---
+
+## 🧩 How It Works
+
+1. Input question & context
+2. Tokenization using BERT preprocessor
+3. Input encoding (`input_ids`, `mask`, `type_ids`)
+4. BERT QA model predicts:
+
+   * Start logits
+   * End logits
+5. Custom span scoring selects best answer
+6. Tokens mapped back to readable text using vocabulary
+
+---
+
+## 🔥 Applications
+
+* 💬 Chatbots & Virtual Assistants
+* 📄 Document Question Answering
+* 📚 Knowledge Retrieval Systems
+* ⚖️ Legal & Contract Analysis
+* 🏥 Medical Information Extraction
+
+---
+
+## 🚧 Future Improvements
+
+* 🌐 Streamlit-based web UI
+* 📚 Multi-document question answering
+* 🔍 Semantic search integration
+* ⚡ Performance optimization
+* ☁️ Deployment (Docker / Cloud)
+
+---
+
+## 👨‍💻 Author
+
+**Nihal Nallella**
+🔗 GitHub: https://github.com/NallellaNihal
+🔗 LinkedIn: https://linkedin.com/in/nallella-nihal
+
+---
+
+## ⭐ Contribute
+
+Feel free to fork, improve, and submit pull requests!
+
+---
+
+## 📜 License
+
+This project is open-source and available under the MIT License.
+
+---
